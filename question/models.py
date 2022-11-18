@@ -11,3 +11,6 @@ class Questions(models.Model):
     question_type = models.CharField(max_length=10)  # historical, dictation, grammar, vocabulary and books
     difficultly = models.CharField(max_length=6)  # easy, normal and hard
     from_tizhooshan_exam = models.BooleanField()
+
+    def __repr__(self):
+        return f"Questions({self.question_type})"
