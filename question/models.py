@@ -7,10 +7,11 @@ class Questions(models.Model):
     option_2 = models.TextField()
     option_3 = models.TextField()
     option_4 = models.TextField()
-    correct_option = models.CharField(max_length=8)
+    correct_option = models.IntegerField()
     question_type = models.CharField(max_length=10)  # historical, dictation, grammar, vocabulary and books
-    difficultly = models.CharField(max_length=6)  # easy, normal and hard
+    difficulty = models.CharField(max_length=6)  # easy, normal and hard
     from_tizhooshan_exam = models.BooleanField()
+    accepted = models.BooleanField()
 
     def __repr__(self):
         return f"Questions({self.question_type})"
