@@ -11,6 +11,8 @@ class Questions(models.Model):
     question_type = models.CharField(max_length=10)  # historical, dictation, grammar, vocabulary and books
     difficulty = models.CharField(max_length=6)  # easy, normal and hard
     from_tizhooshan_exam = models.BooleanField()
+    grade = models.IntegerField()
+    chapter_no = models.IntegerField()
     accepted = models.BooleanField()
 
     def __repr__(self):
