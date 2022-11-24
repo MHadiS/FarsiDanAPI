@@ -18,6 +18,7 @@ def difficulty_validator(value):
 
 
 class Questions(models.Model):
+    title = models.CharField(unique=True, max_length=50)
     text = models.TextField(unique=True)
     option_1 = models.TextField(unique=True)
     option_2 = models.TextField(unique=True)
