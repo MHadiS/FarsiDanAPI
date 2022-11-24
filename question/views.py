@@ -1,6 +1,7 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.core.exceptions import FieldError, ValidationError
 from .models import Questions
+from utils.decorator import check_methods, error_handling
 
 from random import randint
 
@@ -14,6 +15,7 @@ def question_to_json(question) -> dict:
             dict: the json result
     """
     return {
+        "id": question.id,
         "text": question.text,
         "options": (question.option_1,
                     question.option_2,
@@ -27,7 +29,7 @@ def question_to_json(question) -> dict:
     }
 
 
-def preprocess_prams(dict_query: dict) -> dict:
+def preprocess_prams(dict_query: dict = {}) -> dict:
     """Preprocess the get request's parameter and format it to a dict
         Args:
             dict_query (dict): the get request's parameters in a dict format
@@ -43,10 +45,12 @@ def preprocess_prams(dict_query: dict) -> dict:
             dict_query[key] = False
         elif value in "".join([str(i) for i in range(1, 5)]):
             dict_query[key] = int(value)
-        return dict_query
+    return dict_query
 
 
-def get_question(request):
+@error_handling(exceptions=(FieldError, ValidationError))
+@check_methods(methods=["GET"])
+def get_question(request: HttpRequest):
     """Get a question from database with the mentioned attributes in request's parameters
         Args:
             request (django.http.HttpRequest): the request
@@ -54,29 +58,35 @@ def get_question(request):
         Return:
             Json: a json response that include the question data
     """
-    try:
-        dict_query = preprocess_prams(request.GET.dict())  # process the parameters
-        query = Questions.objects.filter(**dict_query).all()  # filter the mentioned record
-        results_number = query.count()
-        if results_number == 0:
-            return JsonResponse({
-                "status": "error",
-                "message": "There is no results"
-            })
 
-        # choosing a random result
-        index = randint(0, results_number - 1)
-        question = query[index]
-
-    except (FieldError, ValidationError) as err:
+    dict_query = preprocess_prams(request.GET.dict())  # process the parameters
+    query = Questions.objects.filter(**dict_query).all()  # filter the mentioned record
+    results_number = query.count()
+    if results_number == 0:
         return JsonResponse({
-            "status": "fail",
-            "data": {
-                "error": str(err)
-            }
+            "status": "error",
+            "message": "There is no results"
         })
+    # choosing a random result
+    index = randint(0, results_number - 1)
+    question = query[index]
+
     return JsonResponse({
         "status": "success",
         "data": {"question": question_to_json(question)}
     })
 
+
+@error_handling(exceptions=(FieldError, ValidationError))
+@check_methods(methods=["POST"])
+def post_question(request: HttpRequest):
+    question_json = request.POST.dict()
+    question_json["accepted"] = False
+
+    new_question = Questions(**question_json)
+    new_question.save()
+
+    return JsonResponse({
+        "status": "success",
+        "data": question_json
+    })
