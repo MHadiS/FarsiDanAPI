@@ -28,7 +28,7 @@ class Questions(models.Model):
                                                      MinValueValidator(1)])
     question_type = models.CharField(max_length=10, validators=[
         question_type_validator
-    ])  # historical, dictation, grammar, vocabulary and books"""
+    ])  # historical, dictation, grammar, vocabulary and books
     difficulty = models.CharField(max_length=6, validators=[
         difficulty_validator
     ])  # easy, normal and hard
