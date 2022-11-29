@@ -20,7 +20,10 @@ def preprocess_prams(dict_query: dict = {}) -> dict:
             dict_query[key] = False
         elif value in "".join([str(i) for i in range(1, 5)]):
             dict_query[key] = int(value)
-    del dict_query["format"]
+    try:
+        del dict_query["format"]
+    except KeyError:
+        pass
     return dict_query
 
 
