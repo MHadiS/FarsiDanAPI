@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['193.141.64.229']
 # Application definition
 
 INSTALLED_APPS = [
+    'users.apps.UsersConfig',
     'question.apps.QuestionConfig',
     'syllabus.apps.SyllabusConfig',
     'django.contrib.admin',
