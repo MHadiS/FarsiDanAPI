@@ -29,9 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = config['DEBUG']
 
-ALLOWED_HOSTS = ['193.141.64.229']
+ALLOWED_HOSTS = config["ALLOWED_HOSTS"]
 
 
 # Application definition
