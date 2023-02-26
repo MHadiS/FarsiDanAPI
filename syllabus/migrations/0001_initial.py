@@ -5,20 +5,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Syllabuses',
+            name="Syllabuses",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('chapter_no', models.PositiveIntegerField()),
-                ('grade', models.PositiveIntegerField(validators=[django.core.validators.MaxValueValidator(12)])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("chapter_no", models.PositiveIntegerField()),
+                (
+                    "grade",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(12)]
+                    ),
+                ),
             ],
         ),
     ]

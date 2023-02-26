@@ -4,26 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Questions',
+            name="Questions",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField()),
-                ('option_1', models.TextField()),
-                ('option_2', models.TextField()),
-                ('option_3', models.TextField()),
-                ('option_4', models.TextField()),
-                ('correct_option', models.CharField(max_length=8)),
-                ('question_type', models.CharField(max_length=10)),
-                ('difficultly', models.CharField(max_length=6)),
-                ('from_tizhooshan_exam', models.BooleanField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField()),
+                ("option_1", models.TextField()),
+                ("option_2", models.TextField()),
+                ("option_3", models.TextField()),
+                ("option_4", models.TextField()),
+                ("correct_option", models.CharField(max_length=8)),
+                ("question_type", models.CharField(max_length=10)),
+                ("difficultly", models.CharField(max_length=6)),
+                ("from_tizhooshan_exam", models.BooleanField()),
             ],
         ),
     ]

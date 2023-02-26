@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('question', '0003_rename_difficultly_questions_difficulty'),
+        ("question", "0003_rename_difficultly_questions_difficulty"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='questions',
-            name='accepted',
+            model_name="questions",
+            name="accepted",
             field=models.BooleanField(default=False),
             preserve_default=True,
         ),

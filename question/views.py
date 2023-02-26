@@ -6,11 +6,11 @@ from .serializers import QuestionSerializer
 
 def preprocess_prams(dict_query: dict = {}) -> dict:
     """Preprocess the get request's parameter and format it to a dict
-        Args:
-            dict_query (dict): the get request's parameters in a dict format
+    Args:
+        dict_query (dict): the get request's parameters in a dict format
 
-        Return:
-            dict: processed parameters
+    Return:
+        dict: processed parameters
     """
     for key, value in dict_query.items():
         value = value.lower()
@@ -31,11 +31,19 @@ class GetQuestionsView(generics.ListAPIView):
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        query = preprocess_prams(self.request.query_params.dict())  # get the urls prams in dict format
+        """Allow user to use url queries for searching in questions
+
+        Returns:
+            any: the question user was looking for
+        """
+        query = preprocess_prams(
+            self.request.query_params.dict()
+        )  # get the urls prams in dict format
         return Questions.objects.filter(**query).all()
 
 
 class PostQuestionsView(generics.CreateAPIView):
+    """The view for posting questions"""
+
     queryset = Questions.objects.all()
     serializer_class = QuestionSerializer
-
