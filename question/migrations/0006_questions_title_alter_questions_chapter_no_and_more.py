@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
             model_name="questions",
             name="difficulty",
             field=models.CharField(
-                max_length=6, validators=[question.models.difficulty_validator]
+                # max_length=6, validators=[question.models.difficulty_validator]
             ),
         ),
         migrations.AlterField(
@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
             model_name="questions",
             name="question_type",
             field=models.CharField(
-                max_length=10, validators=[question.models.question_type_validator]
+                # max_length=10, validators=[question.models.question_type_validator]
             ),
         ),
         migrations.AlterField(
