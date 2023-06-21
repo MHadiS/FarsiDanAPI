@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 
+from .json_helpers import json_response
+
 
 def error_handling(exceptions: tuple):
     def inner(func):
@@ -15,14 +17,11 @@ def error_handling(exceptions: tuple):
     return inner
 
 
-def check_methods(methods: list):
+def check_request_methods(methods: list):
     def inner(func):
         def wrapper(*args, **kwargs):
             if args[0].method not in methods:
-                return JsonResponse({
-                    "status": "fail",
-                    "data": {"method": methods}
-                })
+                return json_response("fail", f"accepted method(s): {methods}")
             return func(*args, **kwargs)
         return wrapper
     return inner
