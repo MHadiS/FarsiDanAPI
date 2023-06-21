@@ -1,25 +1,31 @@
 from django.contrib import admin
-from .models import Questions
+from .models import Question, Difficulty, QuestionType, RegisteredBook, RegisteredChapter
+
+
+admin.site.site_header = "مدیریت فارسیدان"
+admin.site.register(Difficulty)
+admin.site.register(QuestionType)
+
+
 
 
 # Register some models
-@admin.register(Questions)
-class AdminQuestions(admin.ModelAdmin):
-    list_display = (
-        "title",
-        "question_type",
-        "difficulty",
-        "chapter_no",
-        "from_tizhooshan_exam",
-        "grade",
-        "accepted",
-    )
+
+@admin.register(Question)
+class AdminQuestion(admin.ModelAdmin):
+    list_display = ("title", "difficulty_level", "chapter", "question_type", "accepted")
     search_fields = ("title", "text")
-    list_filter = (
-        "question_type",
-        "difficulty",
-        "chapter_no",
-        "from_tizhooshan_exam",
-        "grade",
-        "accepted",
-    )
+    list_filter = ["accepted", "difficulty_level", "chapter", "question_type"]
+
+
+@admin.register(RegisteredBook)
+class AdminRegisteredBook(admin.ModelAdmin):
+    list_display = ("name", "grade")
+    search_fields = ("name",)
+
+
+@admin.register(RegisteredChapter)
+class AdminRegisteredChapter(admin.ModelAdmin):
+    list_display = ("chapter_name", "chapter_number")
+    search_fields = ("chapter_name",)
+    list_filter = ["chapter_number"]

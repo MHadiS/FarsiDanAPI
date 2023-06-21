@@ -4,4 +4,4 @@ from .models import Syllabuses
 
 
 # Register some models
-admin.site.register(Syllabuses)
+# admin.site.register(Syllabuses)
