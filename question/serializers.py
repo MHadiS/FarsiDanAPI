@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from .models import Questions
+from .models import Question
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Questions
+        model = Question
         fields = (
             "id",
             "title",
@@ -31,4 +31,4 @@ class QuestionSerializer(serializers.ModelSerializer):
         Returns:
             any: the modified record
         """
-        return Questions.objects.create(accepted=False, **validated_data)
+        return Question.objects.create(accepted=False, **validated_data)
