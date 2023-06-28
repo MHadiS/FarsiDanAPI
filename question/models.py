@@ -77,6 +77,7 @@ class Question(models.Model):
     chapter = models.ForeignKey(RegisteredChapter, on_delete=models.CASCADE, verbose_name="درس")
     question_type = models.ForeignKey(QuestionType, on_delete=models.CASCADE, verbose_name="نوع سوال")
     accepted = models.BooleanField(verbose_name="تایید شده", default=False)
+    accepted_for_exam = models.BooleanField(verbose_name="تایید شده برای آزمون", default=False)
 
     def __str__(self) -> str:
         return f"سوال : {self.title}"
