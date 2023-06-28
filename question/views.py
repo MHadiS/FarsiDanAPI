@@ -1,49 +1,95 @@
 from rest_framework import generics
+from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Questions
+from utils.decorator import check_request_methods
+from utils.json_helpers import json_response
+from .models import Question, Difficulty, RegisteredChapter, RegisteredBook, QuestionType
 from .serializers import QuestionSerializer
-
-
-def preprocess_prams(dict_query: dict = {}) -> dict:
-    """Preprocess the get request's parameter and format it to a dict
-    Args:
-        dict_query (dict): the get request's parameters in a dict format
-
-    Return:
-        dict: processed parameters
-    """
-    for key, value in dict_query.items():
-        value = value.lower()
-        if value == "true":
-            dict_query[key] = True
-        elif value == "false":
-            dict_query[key] = False
-        elif value in "".join([str(i) for i in range(1, 5)]):
-            dict_query[key] = int(value)
-    try:
-        del dict_query["format"]
-    except KeyError:
-        pass
-    return dict_query
-
-
-class GetQuestionsView(generics.ListAPIView):
-    serializer_class = QuestionSerializer
-
-    def get_queryset(self):
-        """Allow user to use url queries for searching in questions
-
-        Returns:
-            any: the question user was looking for
-        """
-        query = preprocess_prams(
-            self.request.query_params.dict()
-        )  # get the urls prams in dict format
-        return Questions.objects.filter(**query).all()
 
 
 class PostQuestionsView(generics.CreateAPIView):
     """The view for posting questions"""
 
-    queryset = Questions.objects.all()
+    queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+
+def check_queries(queries: dict) -> list:
+    """Check the queries( or query-set) of get_questions view
+
+    Args:
+        queries (dict): the request queries
+
+    Returns:
+        list: errors of the queries
+    """
+
+    VALID_QUERIES = ["difficulty_level", "question_type", "chapter"]
+    VALID_QUERIES_DATA_TYPE = {
+        "difficulty_level": str,
+        "question_type": str,
+        "chapter": int
+    }
+    
+    errors = []  # a list of errors in queries
+    
+    for query, data in queries.items():
+        # check is the queries valid
+        if query not in VALID_QUERIES:
+            errors.append(f"'{query}' is not valid (valid queries are {VALID_QUERIES})")        
+
+        current_type = type(data)
+        # find the valid type for the query
+        try:
+            valid_type = VALID_QUERIES_DATA_TYPE[query] 
+        except KeyError:
+            continue  # if the query isn't valid, it won't exist in VALID_QUERIES_DATA_TYPE so this exception stop the unnecessary errors and continue
+
+        # check is the data type valid
+        if current_type is not valid_type:
+            errors.append(f"'{query}' query's data type should be {valid_type} not {current_type}")
+    
+    return errors
+    
+
+@check_request_methods(methods=["GET"])
+def get_questions(request):
+    """Send a list of questions base on your filters
+
+    Args:
+        request (HttpRequest): the user request
+
+    Returns:
+        json(dict): the questions
+    """
+
+    UNNECESSARY_KEYS = ["accepted", "question_type_id", "chapter_id", "difficulty_level_id"]  # the key that going to be deleted
+ 
+    queries = request.GET.dict()  # get the request url queries
+
+    # check the queries
+    errors = check_queries(queries)
+    if len(errors) != 0: 
+        return json_response("error", errors)
+    
+
+    # find the values for filtering questions
+    try:
+        queries["difficulty_level"] = Difficulty.objects.filter(level_name=queries["difficulty_level"]).first()
+        queries["question_type"] = QuestionType.objects.filter(question_type=queries["question_type"]).first()
+        queries["chapter"] = RegisteredChapter.objects.filter(level_name=queries["chapter"]).first()
+    except KeyError:
+        pass
+
+    questions = list(Question.objects.filter(**queries).values())  # make a list of filtered questions
+
+    # delete unnecessary keys
+    for question in questions:
+        for key in UNNECESSARY_KEYS:
+            del question[key]
+    
+    return json_response("success", questions)
+
+
+
+
+
