@@ -3,10 +3,10 @@ import os
 import mimetypes
 
 from .models import Syllabuses
-from utils.decorator import check_methods
+from utils.decorator import check_request_methods
 
 
-@check_methods(methods=["GET"])
+@check_request_methods(methods=["GET"])
 def get_syllabuses(request, chapter_no: int):
     """Send the syllable(in .pdf format) of a specific chapter
 
