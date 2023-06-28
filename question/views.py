@@ -91,5 +91,41 @@ def get_questions(request):
 
 
 
+@check_request_methods(methods=["GET"])
+def get_attributes(request, category, data_id=None):
+    """Send the data related to question(object) attributes
 
+    Args:
+        request (HttpRequest): the user request
+        category (str): the selected attributes categories
+        data_id (int, optional): the after selecting category you can select the id of that attribute you want. Defaults to None.
 
+    Returns:
+        json: the attribute(s)
+    """
+    all_of = lambda model : list(model.objects.all().values())  # get all of the records in a table in JSON format
+    CATEGORIES = {
+        "difficulties": Difficulty,
+        "types": QuestionType,
+        "chapters": RegisteredChapter,
+        "books": RegisteredBook
+    }  # registering valid categories
+
+    # check is the category valid or not
+    try:
+        current_category = CATEGORIES[category]
+    except KeyError:
+        return json_response("error", f"'{category}' isn't a valid category (valid categories: 'difficulties', 'types', 'chapters', 'books')")
+
+    # if user specified an id, it would return a attribute with that id
+    if data_id is not None:
+        try:
+            data = current_category.objects.get(id=data_id).__dict__  # convert the the data to JSON format
+        except ObjectDoesNotExist:
+            return json_response("error", "no object found with this id")
+
+        del data["_state"]  # this is an unnecessary key that needs to be removed
+
+        return json_response("success", data)
+
+    return json_response("success", all_of(current_category))
