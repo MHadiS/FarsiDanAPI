@@ -1,17 +1,9 @@
-from rest_framework import generics
 from django.core.exceptions import ObjectDoesNotExist
 
 from utils.decorator import check_request_methods
 from utils.json_helpers import json_response
 from .models import Question, Difficulty, RegisteredChapter, RegisteredBook, QuestionType
-from .serializers import QuestionSerializer
 
-
-class PostQuestionsView(generics.CreateAPIView):
-    """The view for posting questions"""
-
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
 
 def check_queries(queries: dict) -> list:
     """Check the queries( or query-set) of get_questions view
