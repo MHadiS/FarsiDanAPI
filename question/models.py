@@ -8,7 +8,7 @@ class Difficulty(models.Model):
         verbose_name = "درجه سختی"
         verbose_name_plural = "درجه های سختی"
 
-    level_name = models.CharField(verbose_name="نام درجه", max_length=20, primary_key=True)
+    level_name = models.CharField(verbose_name="نام درجه", max_length=20)
     level_description= models.TextField(verbose_name="توضیحات مربوط به درجه", blank=True)
 
     def __str__(self) -> str:
@@ -34,7 +34,7 @@ class RegisteredBook(models.Model):
         verbose_name = "کتاب ثبت شده"
         verbose_name_plural = "کتاب های ثبت شده"
 
-    name = models.CharField(max_length=50, verbose_name="اسم", primary_key=True)
+    name = models.CharField(max_length=50, verbose_name="اسم")
     grade = models.PositiveIntegerField(
         verbose_name="مقطع تحصیلی",
         choices=GRADES
@@ -49,7 +49,7 @@ class QuestionType(models.Model):
         verbose_name = "نوع سوال"
         verbose_name_plural = "انواع سوال"
 
-    question_type = models.CharField(verbose_name="نام نوع", max_length=30, primary_key=True)
+    question_type = models.CharField(verbose_name="نام نوع", max_length=30)
 
     def __str__(self) -> str:
         return self.question_type
@@ -64,7 +64,6 @@ class RegisteredChapter(models.Model):
     chapter_number = models.PositiveIntegerField(
         verbose_name="شماره ی درس",
         validators=[MinValueValidator(1)],
-        primary_key=True
     )
     referenced_book = models.ForeignKey(RegisteredBook, on_delete=models.CASCADE, verbose_name="کتاب مرجع")
     

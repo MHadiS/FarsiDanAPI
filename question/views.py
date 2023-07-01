@@ -37,27 +37,6 @@ def check_queries(queries: dict, valid_queries: list, valid_queries_data_type: d
     return [errors, queries]
 
 
-def advanced_filter(model, **filters):
-    """Filter a model's data
-
-    Args:
-        model (Model): model class
-
-    Returns:
-        list: filtered questions
-    """
-    objects = list(model.objects.all().values())  # an copy of model's data in JSON format
-
-    # filter the data
-    for obj in objects:
-        for key, value in filters.items():
-            # remove the records that need to be removed
-            if obj[key] not in value:
-                objects.remove(objects)
-
-    return objects
-    
-
 @check_request_methods(methods=["GET"])
 def get_questions(request):
     """Send a list of questions base on your filters
@@ -69,12 +48,13 @@ def get_questions(request):
         json(dict): the questions
     """
 
-    VALID_QUERIES = ["difficulty_level", "question_type", "chapter", "accepted_for_exam"]
+    VALID_QUERIES = ["difficulty_level_id", "question_type_id", "chapter_id", "accepted_for_exam", "number"]
     VALID_QUERIES_DATA_TYPE = {
-        "difficulty_level": str,
-        "question_type": str,
-        "chapter": list,
-        "accepted_for_exam": bool
+        "difficulty_level_id": int,
+        "question_type_id": int,
+        "chapter_id": int,
+        "accepted_for_exam": bool,
+        "number": int
     }
  
     queries = request.GET.dict()  # get the request url queries
@@ -83,8 +63,15 @@ def get_questions(request):
     errors, queries = check_queries(queries, VALID_QUERIES, VALID_QUERIES_DATA_TYPE)
     if len(errors) != 0: 
         return json_response("error", errors)
+    
+    filters = queries.copy()
+    del filters["number"]
 
-    questions = advanced_filter(Question, **queries)  # make list of filtered questions
+    questions = list(Question.objects.filter(**filters).values())
+
+    number = queries["number"] if queries.get("number") is not None else len(questions) + 1
+    
+    questions = questions[:number]    
 
     return json_response("success", questions)
 
