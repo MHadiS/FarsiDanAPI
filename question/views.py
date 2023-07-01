@@ -5,8 +5,8 @@ from utils.json_helpers import json_response
 from .models import Question, Difficulty, RegisteredChapter, RegisteredBook, QuestionType
 
 
-def check_queries(queries: dict) -> list:
-    """Check the queries( or query-set) of get_questions view
+def check_queries(queries: dict, valid_queries: list, valid_queries_data_type: dict) -> list:
+    """Check the queries( or url parameters) of get_questions view
 
     Args:
         queries (dict): the request queries
@@ -14,33 +14,48 @@ def check_queries(queries: dict) -> list:
     Returns:
         list: errors of the queries
     """
-
-    VALID_QUERIES = ["difficulty_level", "question_type", "chapter"]
-    VALID_QUERIES_DATA_TYPE = {
-        "difficulty_level": str,
-        "question_type": str,
-        "chapter": int
-    }
     
     errors = []  # a list of errors in queries
     
     for query, data in queries.items():
         # check is the queries valid
-        if query not in VALID_QUERIES:
-            errors.append(f"'{query}' is not valid (valid queries are {VALID_QUERIES})")        
+        if query not in valid_queries:
+            errors.append(f"'{query}' is not valid (valid queries are {valid_queries})")        
+            continue
 
         current_type = type(data)
+        
         # find the valid type for the query
-        try:
-            valid_type = VALID_QUERIES_DATA_TYPE[query] 
-        except KeyError:
-            continue  # if the query isn't valid, it won't exist in VALID_QUERIES_DATA_TYPE so this exception stop the unnecessary errors and continue
+        valid_type = valid_queries_data_type[query] 
 
         # check is the data type valid
-        if current_type is not valid_type:
-            errors.append(f"'{query}' query's data type should be {valid_type} not {current_type}")
-    
-    return errors
+        try:
+            queries[query] = valid_type(data)
+        except ValueError:
+            errors.append(f"'{query}' query's data type should be {valid_type[0].__name__} or {valid_type[1].__name__} not {current_type.__name__} (if the type should be bool use 'True' or 'False')")
+
+    return [errors, queries]
+
+
+def advanced_filter(model, **filters):
+    """Filter a model's data
+
+    Args:
+        model (Model): model class
+
+    Returns:
+        list: filtered questions
+    """
+    objects = list(model.objects.all().values())  # an copy of model's data in JSON format
+
+    # filter the data
+    for obj in objects:
+        for key, value in filters.items():
+            # remove the records that need to be removed
+            if obj[key] not in value:
+                objects.remove(objects)
+
+    return objects
     
 
 @check_request_methods(methods=["GET"])
@@ -54,31 +69,24 @@ def get_questions(request):
         json(dict): the questions
     """
 
-    UNNECESSARY_KEYS = ["accepted", "question_type_id", "chapter_id", "difficulty_level_id"]  # the key that going to be deleted
+    VALID_QUERIES = ["difficulty_level", "question_type", "chapter", "number", "accepted_for_exam"]
+    VALID_QUERIES_DATA_TYPE = {
+        "difficulty_level": str,
+        "question_type": str,
+        "chapter": list,
+        "number": int,
+        "accepted_for_exam": bool
+    }
  
     queries = request.GET.dict()  # get the request url queries
 
     # check the queries
-    errors = check_queries(queries)
+    errors, queries = check_queries(queries, VALID_QUERIES, VALID_QUERIES_DATA_TYPE)
     if len(errors) != 0: 
         return json_response("error", errors)
-    
 
-    # find the values for filtering questions
-    try:
-        queries["difficulty_level"] = Difficulty.objects.filter(level_name=queries["difficulty_level"]).first()
-        queries["question_type"] = QuestionType.objects.filter(question_type=queries["question_type"]).first()
-        queries["chapter"] = RegisteredChapter.objects.filter(level_name=queries["chapter"]).first()
-    except KeyError:
-        pass
+    questions = advanced_filter(Question, **queries)  # make list of filtered questions
 
-    questions = list(Question.objects.filter(**queries).values())  # make a list of filtered questions
-
-    # delete unnecessary keys
-    for question in questions:
-        for key in UNNECESSARY_KEYS:
-            del question[key]
-    
     return json_response("success", questions)
 
 
