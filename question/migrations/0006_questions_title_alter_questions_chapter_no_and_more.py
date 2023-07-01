@@ -2,7 +2,7 @@
 
 import django.core.validators
 from django.db import migrations, models
-import question.models
+# import question.models
 
 
 class Migration(migrations.Migration):
@@ -14,8 +14,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="questions",
             name="title",
-            field=models.CharField(default="A beatuful question", max_length=50),
-            preserve_default=False,
+            field=models.CharField(
+                max_length=50
+            ), # type: ignore
         ),
         migrations.AlterField(
             model_name="questions",
@@ -38,7 +39,7 @@ class Migration(migrations.Migration):
             model_name="questions",
             name="difficulty",
             field=models.CharField(
-                # max_length=6, validators=[question.models.difficulty_validator]
+                max_length=6,# validators=[question.models.difficulty_validator]
             ),
         ),
         migrations.AlterField(
@@ -75,7 +76,7 @@ class Migration(migrations.Migration):
             model_name="questions",
             name="question_type",
             field=models.CharField(
-                # max_length=10, validators=[question.models.question_type_validator]
+                max_length=10, #validators=[question.models.question_type_validator]
             ),
         ),
         migrations.AlterField(

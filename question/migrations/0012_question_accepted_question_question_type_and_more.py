@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             model_name="question",
             name="question_type",
             field=models.ForeignKey(
-                default="",
+                default="", # type: ignore
                 on_delete=django.db.models.deletion.CASCADE,
                 to="question.questiontype",
                 verbose_name="نوع سوال",
