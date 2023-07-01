@@ -6,22 +6,20 @@ admin.site.site_header = "مدیریت فارسیدان"
 admin.site.register(Difficulty)
 admin.site.register(QuestionType)
 
-
-
-
 # Register some models
 
 @admin.register(Question)
 class AdminQuestion(admin.ModelAdmin):
-    list_display = ("title", "difficulty_level", "chapter", "question_type", "accepted")
+    list_display = ("title", "difficulty_level", "chapter", "question_type", "accepted_for_exam")
     search_fields = ("title", "text")
-    list_filter = ["accepted", "difficulty_level", "chapter", "question_type"]
+    list_filter = ["accepted_for_exam", "difficulty_level", "chapter", "question_type"]
 
 
 @admin.register(RegisteredBook)
 class AdminRegisteredBook(admin.ModelAdmin):
     list_display = ("name", "grade")
     search_fields = ("name",)
+    list_filter = ("grade",)
 
 
 @admin.register(RegisteredChapter)
