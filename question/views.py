@@ -69,12 +69,11 @@ def get_questions(request):
         json(dict): the questions
     """
 
-    VALID_QUERIES = ["difficulty_level", "question_type", "chapter", "number", "accepted_for_exam"]
+    VALID_QUERIES = ["difficulty_level", "question_type", "chapter", "accepted_for_exam"]
     VALID_QUERIES_DATA_TYPE = {
         "difficulty_level": str,
         "question_type": str,
         "chapter": list,
-        "number": int,
         "accepted_for_exam": bool
     }
  
