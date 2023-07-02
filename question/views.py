@@ -65,7 +65,11 @@ def get_questions(request):
         return json_response("error", errors)
     
     filters = queries.copy()
-    del filters["number"]
+
+    try:
+        del filters["number"]
+    except KeyError:
+        pass
 
     questions = list(Question.objects.filter(**filters).values())
 
