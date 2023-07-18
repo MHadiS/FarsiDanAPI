@@ -1,6 +1,5 @@
-from typing import Iterable, Optional
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 
 
 class Difficulty(models.Model):
