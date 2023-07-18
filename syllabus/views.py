@@ -3,25 +3,22 @@ from utils.decorator import check_request_methods
 from utils.json_helpers import json_response
 
 
-def tag_id(tag_name):
-    """Get a tag's id base on it's name
+def tags_id(tags_name: list):
+    """Get tag's id base on it's name
 
     Args:
-        tag_name (str): the tag name
+        tags_name (list): the tags names
 
     Returns:
-        int: the tag id
+        list: the tags id
     """
+ 
+    tags = Tag.objects.filter(name__in=tags_name)  # find tags with wanted names
 
-    # try to find a tag with name 'tag_name'
-    try:
-        tag_obj = Tag.objects.filter(name=tag_name).first()
-    except AttributeError:
-        return None
+    ids = [tag.pk for tag in tags]  # get their id 
 
-    # if the wanted tag exist return it
-    if tag_obj is not None:
-        return tag_obj.pk   
+    return ids
+    
 
 
 @check_request_methods(methods=["GET"])
@@ -39,7 +36,7 @@ def get_tags(request):
 
 
 @check_request_methods(methods=["GET"])
-def list_syllabuses(request, tag=None):
+def list_syllabuses(request, tags=None):
     """List all of the syllabuses
 
     Args:
@@ -51,19 +48,19 @@ def list_syllabuses(request, tag=None):
     """
     syllabuses = None
 
-    # if tag is None return all of syllabuses
-    if tag is None:
+    # if 'tags' is None return all of syllabuses
+    if tags is None:
         syllabuses = Syllabus.objects.all()
 
-    # if there is a tag return all of syllabuses with that tag
+    # if 'tags' isn't 'None' return all of syllabuses with those tags
     else:
-        syllabus_tag = tag_id(tag)
+        tags = tags_id(tags)
 
-        # if wanted tag doesn't exist return an error massage
-        if syllabus_tag is None:
-            return json_response("error", "No tag found with this name")
+        # if the wanted tags don't exist return an error massage
+        if len(tags) == 0:
+            return json_response("error", "No syllabus found with this tag")
 
-        syllabuses = Syllabus.objects.filter(tags=syllabus_tag)  # find syllabuses with wanted tag
+        syllabuses = Syllabus.objects.filter(tags__in=tags)  # find syllabuses with wanted tags
     
     response = list(syllabuses.values())  # convert 'syllabuses' to serializable data 
 
