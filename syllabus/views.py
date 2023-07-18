@@ -1,38 +1,77 @@
-from django.http import HttpResponse, Http404
-import os
-import mimetypes
-
-from .models import Syllabuses
+from .models import Tag, Syllabus
 from utils.decorator import check_request_methods
+from utils.json_helpers import json_response
+
+
+def tag_id(tag_name):
+    """Get a tag's id base on it's name
+
+    Args:
+        tag_name (str): the tag name
+
+    Returns:
+        int: the tag id
+    """
+
+    # try to find a tag with name 'tag_name'
+    try:
+        tag_obj = Tag.objects.filter(name=tag_name).first()
+    except AttributeError:
+        return None
+
+    # if the wanted tag exist return it
+    if tag_obj is not None:
+        return tag_obj.pk   
 
 
 @check_request_methods(methods=["GET"])
-def get_syllabuses(request, chapter_no: int):
-    """Send the syllable(in .pdf format) of a specific chapter
+def get_tags(request):
+    """Get a list of tags
 
     Args:
-        request (any): the user request
-        chapter_no (int): the chapter number
-
-    Raises:
-        Http404: when the file doesn't exist
+        request (HttpRequest): the client request
 
     Returns:
-        response: the syllable pdf
+        json: an organized list of every tag name and tag id 
     """
-    directory = os.path.abspath("syllabus") + "\\syllabuses\\"
-    syllabus = Syllabuses.objects.filter(chapter_no=chapter_no).first()
+    tags = Tag.objects.all()
+    return json_response("success", list(tags.values()))
 
-    try:
-        file_path = directory + syllabus.name
-    except AttributeError:
-        raise Http404()
 
-    if not os.path.exists(file_path):
-        raise Http404
+@check_request_methods(methods=["GET"])
+def list_syllabuses(request, tag=None):
+    """List all of the syllabuses
 
-    mime_type, _ = mimetypes.guess_type(file_path)
-    with open(file_path, "rb") as f:
-        response = HttpResponse(f.read(), content_type=mime_type)
-        response["Content-Disposition"] = f"inline; filename={syllabus.name}"
-    return response
+    Args:
+        request (HttpRequest): client request
+        tag (str): a tag name. Defaults to None.
+
+    Returns:
+        json: a list of syllabuses with wanted tag
+    """
+    syllabuses = None
+
+    # if tag is None return all of syllabuses
+    if tag is None:
+        syllabuses = Syllabus.objects.all()
+
+    # if there is a tag return all of syllabuses with that tag
+    else:
+        syllabus_tag = tag_id(tag)
+
+        # if wanted tag doesn't exist return an error massage
+        if syllabus_tag is None:
+            return json_response("error", "No tag found with this name")
+
+        syllabuses = Syllabus.objects.filter(tags=syllabus_tag)  # find syllabuses with wanted tag
+    
+    response = list(syllabuses.values())  # convert 'syllabuses' to serializable data 
+
+    # change some values of syllabuses
+    for syllabus in response:
+        syllabus_obj = Syllabus.objects.filter(**syllabus).first()
+        syllabus["tags"] = list(syllabus_obj.tags.values())
+        syllabus["pdf_file"] = syllabus_obj.pdf_file.url
+        syllabus["banner"] = syllabus_obj.banner.url
+    
+    return json_response("success", response)
